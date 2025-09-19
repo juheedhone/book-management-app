@@ -1,18 +1,42 @@
+"use client";
+
 import { books } from "@/app/constant/books";
+import { Input } from "@/components/ui/input";
 import { Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 
 const BookGrid = () => {
+  const [inputValue, setInputValue] = useState("");
+
+  const filteredBooks = books.filter((book) => {
+    const searchString = inputValue.toLocaleLowerCase();
+
+    return (
+      book.author.toLowerCase().includes(searchString) ||
+      book.title.toLowerCase().includes(searchString)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-16">
-        <div className="flex justify-between">
-          <p className="text-4xl font-bold   mb-8 ">Library</p>
-          <Button>Add Book</Button>
+        <div className="flex justify-between items-center mb-8">
+          <p className="text-4xl font-bold">Library</p>
+          <div className="flex">
+            <Input
+              onChange={(e) => setInputValue(e.target.value)}
+              value={inputValue}
+              type="text"
+              placeholder="Search by title or author"
+              className="mr-2 w-56"
+            />
+            <Button>Add Book</Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-          {books.map((book) => (
+          {filteredBooks.map((book) => (
             <div
               key={book.id}
               className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
