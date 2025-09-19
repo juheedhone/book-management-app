@@ -1,6 +1,14 @@
-// books.fixture.ts
+export interface IBook {
+  id: string;
+  title: string;
+  author: string;
+  genre: string;
+  publishedYear: number;
+  status: string;
+  image: string;
+}
 
-export const books = [
+export const books: IBook[] = [
   {
     id: "1",
     title: "The Great Gatsby",

@@ -2,21 +2,48 @@
 
 import { books } from "@/app/constant/books";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 
 const BookGrid = () => {
   const [inputValue, setInputValue] = useState("");
+  const [status, setStatus] = useState<string | undefined>(undefined);
+  const [genre, setGenre] = useState<string | undefined>(undefined);
 
-  const filteredBooks = books.filter((book) => {
-    const searchString = inputValue.toLocaleLowerCase();
+  const filterBooks = () => {
+    let filteredBooks = books;
 
-    return (
-      book.author.toLowerCase().includes(searchString) ||
-      book.title.toLowerCase().includes(searchString)
-    );
-  });
+    // input value
+    filteredBooks = books.filter((book) => {
+      const searchString = inputValue.toLocaleLowerCase();
+
+      return (
+        book.author.toLowerCase().includes(searchString) ||
+        book.title.toLowerCase().includes(searchString)
+      );
+    });
+
+    // status
+    if (status) {
+      filteredBooks = books.filter((book) => book.status === status);
+    }
+    // genre
+
+    if (genre) {
+      filteredBooks = books.filter((book) => book.genre === genre);
+    }
+
+    return filteredBooks;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -24,6 +51,43 @@ const BookGrid = () => {
         <div className="flex justify-between items-center mb-8">
           <p className="text-4xl font-bold">Library</p>
           <div className="flex">
+            <Select value={genre} onValueChange={setGenre}>
+              <SelectTrigger className="w-[180px] mr-2">
+                <SelectValue placeholder="Select genre" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="Classic">Classic</SelectItem>
+                  <SelectItem value="Dystopian">Dystopian</SelectItem>
+                  <SelectItem value="Romance">Romance</SelectItem>
+                  <SelectItem value="Fantasy">Fantasy</SelectItem>
+                  <SelectItem value="Thriller">Thriller</SelectItem>
+                  <SelectItem value="Drama">Drama</SelectItem>
+                  <SelectItem value="Biography">Biography</SelectItem>
+                  <SelectItem value="Memoir">Memoir</SelectItem>
+                  <SelectItem value="Self-Help">Self-Help"</SelectItem>
+                  <SelectItem value="Horror">Horror</SelectItem>
+                  <SelectItem value="Business">Business</SelectItem>
+                  <SelectItem value="Historical">Historical</SelectItem>
+                  <SelectItem value="Philosophical">Philosophical</SelectItem>
+                  <SelectItem value="Post-Apocalyptic">
+                    Post-Apocalyptic
+                  </SelectItem>
+                  <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="w-[180px] mr-2">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="Available">Available</SelectItem>
+                  <SelectItem value="Issued">Issued</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
             <Input
               onChange={(e) => setInputValue(e.target.value)}
               value={inputValue}
@@ -36,7 +100,7 @@ const BookGrid = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-          {filteredBooks.map((book) => (
+          {filterBooks().map((book) => (
             <div
               key={book.id}
               className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
