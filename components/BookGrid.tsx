@@ -1,6 +1,8 @@
 "use client";
 
 import { type IBook } from "@/app/constant/books";
+import { GENRES } from "@/app/constant/genre";
+import { STATUS } from "@/app/constant/status";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,13 +12,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { GENRES } from "@/app/constant/genre";
-import { STATUS } from "@/app/constant/status";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Edit, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import AddBook from "./AddBook";
+import EditBook from "./EditBook";
 import { Skeleton } from "./ui/skeleton";
 
 const BookGrid = () => {
@@ -147,7 +148,7 @@ const BookGrid = () => {
                   <p className="text-sm text-gray-500">{book.author}</p>
                 </div>
                 <div className="text-gray-500">
-                  <Edit className="mb-2 size-4" />
+                  <EditBook book={book} />
                   <Trash2 className="size-4" />
                 </div>
               </div>
