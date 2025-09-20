@@ -10,12 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { GENRES } from "@/app/constant/genre";
+import { STATUS } from "@/app/constant/status";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Button } from "./ui/button";
+import AddBook from "./AddBook";
 import { Skeleton } from "./ui/skeleton";
 
 const BookGrid = () => {
@@ -70,23 +71,11 @@ const BookGrid = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="Classic">Classic</SelectItem>
-                <SelectItem value="Dystopian">Dystopian</SelectItem>
-                <SelectItem value="Romance">Romance</SelectItem>
-                <SelectItem value="Fantasy">Fantasy</SelectItem>
-                <SelectItem value="Thriller">Thriller</SelectItem>
-                <SelectItem value="Drama">Drama</SelectItem>
-                <SelectItem value="Biography">Biography</SelectItem>
-                <SelectItem value="Memoir">Memoir</SelectItem>
-                <SelectItem value="Self-Help">Self-Help"</SelectItem>
-                <SelectItem value="Horror">Horror</SelectItem>
-                <SelectItem value="Business">Business</SelectItem>
-                <SelectItem value="Historical">Historical</SelectItem>
-                <SelectItem value="Philosophical">Philosophical</SelectItem>
-                <SelectItem value="Post-Apocalyptic">
-                  Post-Apocalyptic
-                </SelectItem>
-                <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
+                {GENRES.map((genre) => (
+                  <SelectItem key={genre} value={genre}>
+                    {genre}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -96,8 +85,11 @@ const BookGrid = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="Available">Available</SelectItem>
-                <SelectItem value="Issued">Issued</SelectItem>
+                {STATUS.map((state) => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -108,7 +100,7 @@ const BookGrid = () => {
             placeholder="Search by title or author"
             className="w-56 mr-2"
           />
-          <Button>Add Book</Button>
+          <AddBook />
         </div>
       </div>
 

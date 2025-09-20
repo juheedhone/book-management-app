@@ -1,0 +1,17 @@
+export const GENRES = [
+  "Classic",
+  "Dystopian",
+  "Romance",
+  "Fantasy",
+  "Thriller",
+  "Drama",
+  "Biography",
+  "Memoir",
+  "Horror",
+  "Business",
+  "Historical",
+  "Philosophical",
+  "Self-Help",
+  "Post-Apocalyptic",
+  "Non-Fiction",
+];
