@@ -1,6 +1,6 @@
 "use client";
 
-import { books } from "@/app/constant/books";
+import { type IBook } from "@/app/constant/books";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,16 +10,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 const BookGrid = () => {
   const [inputValue, setInputValue] = useState("");
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [genre, setGenre] = useState<string | undefined>(undefined);
 
-  const filterBooks = () => {
+  const getBooks = async () => {
+    const res = await axios.get("/api/book");
+    return res.data;
+  };
+
+  const { isPending, data, isError } = useQuery<IBook[]>({
+    queryKey: ["books"],
+    queryFn: getBooks,
+  });
+
+  const filterBooks = (books: IBook[]) => {
     let filteredBooks = books;
 
     // input value
@@ -34,82 +48,93 @@ const BookGrid = () => {
 
     // status
     if (status) {
-      filteredBooks = books.filter((book) => book.status === status);
+      filteredBooks = filteredBooks.filter((book) => book.status === status);
     }
-    // genre
 
+    // genre
     if (genre) {
-      filteredBooks = books.filter((book) => book.genre === genre);
+      filteredBooks = filteredBooks.filter((book) => book.genre === genre);
     }
 
     return filteredBooks;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="p-16">
-        <div className="flex justify-between items-center mb-8">
-          <p className="text-4xl font-bold">Library</p>
-          <div className="flex">
-            <Select value={genre} onValueChange={setGenre}>
-              <SelectTrigger className="w-[180px] mr-2">
-                <SelectValue placeholder="Select genre" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="Classic">Classic</SelectItem>
-                  <SelectItem value="Dystopian">Dystopian</SelectItem>
-                  <SelectItem value="Romance">Romance</SelectItem>
-                  <SelectItem value="Fantasy">Fantasy</SelectItem>
-                  <SelectItem value="Thriller">Thriller</SelectItem>
-                  <SelectItem value="Drama">Drama</SelectItem>
-                  <SelectItem value="Biography">Biography</SelectItem>
-                  <SelectItem value="Memoir">Memoir</SelectItem>
-                  <SelectItem value="Self-Help">Self-Help"</SelectItem>
-                  <SelectItem value="Horror">Horror</SelectItem>
-                  <SelectItem value="Business">Business</SelectItem>
-                  <SelectItem value="Historical">Historical</SelectItem>
-                  <SelectItem value="Philosophical">Philosophical</SelectItem>
-                  <SelectItem value="Post-Apocalyptic">
-                    Post-Apocalyptic
-                  </SelectItem>
-                  <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-[180px] mr-2">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="Available">Available</SelectItem>
-                  <SelectItem value="Issued">Issued</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Input
-              onChange={(e) => setInputValue(e.target.value)}
-              value={inputValue}
-              type="text"
-              placeholder="Search by title or author"
-              className="mr-2 w-56"
-            />
-            <Button>Add Book</Button>
-          </div>
+    <div className="min-h-screen bg-gray-50 p-16">
+      <div className="flex items-center justify-between mb-8">
+        <p className="text-4xl font-bold">Library</p>
+        <div className="flex">
+          <Select value={genre} onValueChange={setGenre}>
+            <SelectTrigger className="w-[180px] mr-2">
+              <SelectValue placeholder="Select genre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="Classic">Classic</SelectItem>
+                <SelectItem value="Dystopian">Dystopian</SelectItem>
+                <SelectItem value="Romance">Romance</SelectItem>
+                <SelectItem value="Fantasy">Fantasy</SelectItem>
+                <SelectItem value="Thriller">Thriller</SelectItem>
+                <SelectItem value="Drama">Drama</SelectItem>
+                <SelectItem value="Biography">Biography</SelectItem>
+                <SelectItem value="Memoir">Memoir</SelectItem>
+                <SelectItem value="Self-Help">Self-Help"</SelectItem>
+                <SelectItem value="Horror">Horror</SelectItem>
+                <SelectItem value="Business">Business</SelectItem>
+                <SelectItem value="Historical">Historical</SelectItem>
+                <SelectItem value="Philosophical">Philosophical</SelectItem>
+                <SelectItem value="Post-Apocalyptic">
+                  Post-Apocalyptic
+                </SelectItem>
+                <SelectItem value="Non-Fiction">Non-Fiction</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="w-[180px] mr-2">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="Available">Available</SelectItem>
+                <SelectItem value="Issued">Issued</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Input
+            onChange={(e) => setInputValue(e.target.value)}
+            value={inputValue}
+            type="text"
+            placeholder="Search by title or author"
+            className="w-56 mr-2"
+          />
+          <Button>Add Book</Button>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
-          {filterBooks().map((book) => (
+      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {isPending ? (
+          <>
+            {Array.from({ length: 8 }, (_, i) => (
+              <Skeleton
+                key={i}
+                className="h-110 w-[15.625rem] rounded-xl bg-gray-300"
+              />
+            ))}
+          </>
+        ) : isError ? (
+          <p>error</p>
+        ) : (
+          filterBooks(data).map((book) => (
             <div
               key={book.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
+              className="flex flex-col overflow-hidden transition-shadow duration-300 bg-white shadow-md rounded-2xl hover:shadow-xl"
             >
-              <div className="relative h-80 w-full overflow-hidden">
+              <div className="relative w-full overflow-hidden h-80">
                 <img
                   src={book.image}
                   alt={book.title}
-                  className="w-full h-full object-cover rounded-t-2xl"
+                  className="object-cover w-full h-full rounded-t-2xl"
                 />
                 <span
                   className={`absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full ${
@@ -130,7 +155,7 @@ const BookGrid = () => {
                   <p className="text-sm text-gray-500">{book.author}</p>
                 </div>
                 <div className="text-gray-500">
-                  <Edit className="size-4 mb-2" />
+                  <Edit className="mb-2 size-4" />
                   <Trash2 className="size-4" />
                 </div>
               </div>
@@ -145,8 +170,8 @@ const BookGrid = () => {
                 </p>
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );
