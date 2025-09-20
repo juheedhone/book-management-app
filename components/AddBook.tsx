@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -31,6 +35,7 @@ import {
 } from "./ui/select";
 
 const AddBook = () => {
+  const queryClient = useQueryClient();
   const form = useForm<IBookSchema>({
     resolver: zodResolver(bookSchema),
     defaultValues: {
@@ -42,9 +47,25 @@ const AddBook = () => {
     },
   });
 
-  function onSubmit(values: IBookSchema) {
+  const { mutate, isPending } = useMutation({
+    mutationFn: (newBook: IBookSchema) => {
+      return axios.post("/api/book", newBook);
+    },
+    onError: (error, onMutateResult) => {
+      console.log("🚀 ~ AddBook ~ onMutateResult:", onMutateResult);
+      console.log("🚀 ~ AddBook ~ error:", error);
+      toast.error("Failed to add book");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["books"] });
+      toast.success("Book added successfully");
+    },
+  });
+
+  const onSubmit = (values: IBookSchema) => {
     console.log(values);
-  }
+    mutate(values);
+  };
 
   return (
     <Dialog>
@@ -183,7 +204,13 @@ const AddBook = () => {
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button type="submit">Save changes</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Save changes"
+                )}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
