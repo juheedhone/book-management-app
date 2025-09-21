@@ -1,5 +1,5 @@
 import { type IBook } from "@/app/constant/books";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 
 export const GET = async (request: NextRequest) => {
@@ -47,8 +47,53 @@ export const bookSchema = z.object({
     .string({ error: "Image URL is required" })
     .min(1, { error: "Image URL is required" }),
 });
-
 export type IBookSchema = z.infer<typeof bookSchema>;
+const editBookSchema = bookSchema.extend({
+  id: z.number(),
+});
+
+export const PUT = async (request: NextRequest) => {
+  const body = await request.json();
+  await new Promise((resolve) => setTimeout(resolve, 1300));
+
+  const validatedBody = editBookSchema.safeParse(body);
+
+  if (!validatedBody.success) {
+    return NextResponse.json({ error: validatedBody.error }, { status: 400 });
+  }
+  const updatedBook = validatedBody.data;
+
+  books = books.map((book) =>
+    book.id === updatedBook.id ? updatedBook : book
+  );
+  return NextResponse.json(updatedBook, { status: 200 });
+};
+
+export const DELETE = async (request: NextRequest) => {
+  await new Promise((resolve) => setTimeout(resolve, 1300));
+
+  // Try to get id from query param
+  const searchParams = request.nextUrl.searchParams;
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json(
+      { error: "query param not found" },
+      { status: 400 }
+    );
+  }
+
+  const bookIndex = books.findIndex((b) => b.id === Number.parseInt(id));
+
+  if (bookIndex === -1) {
+    return NextResponse.json({ error: "Book not found" }, { status: 404 });
+  }
+
+  const deletedBook = books[bookIndex];
+  books = books.filter((b) => b.id !== Number.parseInt(id));
+
+  return NextResponse.json(deletedBook, { status: 200 });
+};
 
 let books: IBook[] = [
   {

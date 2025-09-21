@@ -1,4 +1,5 @@
-import { bookSchema, type IBookSchema } from "@/app/api/book/route";
+"use client";
+
 import type { IBook } from "@/app/constant/books";
 import { GENRES } from "@/app/constant/genre";
 import { STATUS } from "@/app/constant/status";
@@ -19,6 +20,7 @@ import axios from "axios";
 import { Edit, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -38,11 +40,37 @@ import {
 interface Props {
   book: IBook;
 }
+
+export const editBookSchema = z.object({
+  id: z.number(),
+  title: z
+    .string({ error: "Title is required" })
+    .min(1, { error: "Title is required" }),
+  author: z
+    .string({ error: "Author is required" })
+    .min(1, { error: "Author is required" }),
+  genre: z
+    .string({ error: "Genre is required" })
+    .min(1, { error: "Genre is required" }),
+  publishedYear: z.coerce
+    .number<number>({ error: "Published year must be a number" })
+    .int()
+    .min(0, "Published year must be 0 or greater"),
+  status: z
+    .string({ error: "Status is required" })
+    .min(1, { error: "Status is required" }),
+  image: z
+    .string({ error: "Image URL is required" })
+    .min(1, { error: "Image URL is required" }),
+});
+type IEditBookSchema = z.infer<typeof editBookSchema>;
+
 const EditBook = ({ book }: Props) => {
   const queryClient = useQueryClient();
-  const form = useForm<IBookSchema>({
-    resolver: zodResolver(bookSchema),
+  const form = useForm<IEditBookSchema>({
+    resolver: zodResolver(editBookSchema),
     defaultValues: {
+      id: book.id,
       title: book.title,
       author: book.author,
       genre: book.genre,
@@ -53,21 +81,21 @@ const EditBook = ({ book }: Props) => {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (newBook: IBookSchema) => {
-      return axios.patch("/api/book", newBook);
+    mutationFn: (newBook: IEditBookSchema) => {
+      return axios.put("/api/book", newBook);
     },
     onError: (error, onMutateResult) => {
       console.log("🚀 ~ AddBook ~ onMutateResult:", onMutateResult);
       console.log("🚀 ~ AddBook ~ error:", error);
-      toast.error("Failed to add book");
+      toast.error("Failed to updated book");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
-      toast.success("Book added successfully");
+      toast.success("Book updated successfully");
     },
   });
 
-  const onSubmit = (values: IBookSchema) => {
+  const onSubmit = (values: IEditBookSchema) => {
     console.log(values);
     mutate(values);
   };
