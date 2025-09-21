@@ -133,7 +133,7 @@ const BookGrid = () => {
             {Array.from({ length: 8 }, (_, i) => (
               <Skeleton
                 key={i}
-                className="h-110 w-[15.625rem] rounded-xl bg-gray-300"
+                className="h-110 w-[18rem] rounded-xl bg-gray-300"
               />
             ))}
           </>
