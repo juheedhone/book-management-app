@@ -118,7 +118,7 @@ const BookGrid = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {isPending ? (
+        {isPending || isFetching ? (
           <>
             {Array.from({ length: 8 }, (_, i) => (
               <Skeleton
@@ -178,9 +178,15 @@ const BookGrid = () => {
           ))
         )}
       </div>
-      <div className="flex items-center justify-center mt-6">
-        <Pagination />
-      </div>
+      {data && (
+        <div className="flex items-center justify-center mt-6">
+          <Pagination
+            page={page}
+            setPage={setPage}
+            totalPages={data.config.totalPages}
+          />
+        </div>
+      )}
     </div>
   );
 };

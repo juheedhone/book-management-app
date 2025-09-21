@@ -1,35 +1,54 @@
+import { toast } from "sonner";
 import {
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "./ui/pagination";
 
-const Pagination = () => {
+interface Props {
+  page: number;
+  setPage: (page: number) => void;
+  totalPages: number;
+}
+const Pagination = ({ page, setPage, totalPages }: Props) => {
+  const handlePreviousPage = () => {
+    if (page === 1) {
+      toast.error("There is no previous page");
+      return;
+    }
+    setPage(page - 1);
+  };
+
+  const handleNextPage = () => {
+    if (page === totalPages) {
+      toast.error("There is no next page");
+      return;
+    }
+    setPage(page + 1);
+  };
+
   return (
     <div aria-label="Pagination">
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious href="#" />
+          <PaginationPrevious onClick={handlePreviousPage} />
         </PaginationItem>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+          (pageNumber) => (
+            <PaginationItem
+              key={pageNumber}
+              onClick={() => setPage(pageNumber)}
+            >
+              <PaginationLink isActive={page === pageNumber}>
+                {pageNumber}
+              </PaginationLink>
+            </PaginationItem>
+          )
+        )}
         <PaginationItem>
-          <PaginationLink href="#">1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink href="#" isActive>
-            2
-          </PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink href="#">3</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationNext href="#" />
+          <PaginationNext onClick={handleNextPage} />
         </PaginationItem>
       </PaginationContent>
     </div>
