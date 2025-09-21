@@ -12,27 +12,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import AddBook from "./AddBook";
+import DeleteBook from "./DeleteBook";
 import EditBook from "./EditBook";
+import Pagination from "./Pagination";
 import { Skeleton } from "./ui/skeleton";
 
 const BookGrid = () => {
+  const [page, setPage] = useState(1);
   const [inputValue, setInputValue] = useState("");
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [genre, setGenre] = useState<string | undefined>(undefined);
 
-  const getBooks = async () => {
-    const res = await axios.get("/api/book");
+  interface IFetchBooks {
+    books: IBook[];
+    config: {
+      total: number;
+      totalPages: number;
+      page: number;
+      limit: number;
+    };
+  }
+  const getBooks = async (page: number) => {
+    const res = await axios.get(`/api/book?page=${page}&limit=10`);
     return res.data;
   };
 
-  const { isPending, data, isError } = useQuery<IBook[]>({
-    queryKey: ["books"],
-    queryFn: getBooks,
+  const { isPending, data, isError, isFetching } = useQuery<IFetchBooks>({
+    queryKey: ["books", page],
+    queryFn: () => getBooks(page),
+    placeholderData: keepPreviousData,
   });
 
   const filterBooks = (books: IBook[]) => {
@@ -118,7 +130,7 @@ const BookGrid = () => {
         ) : isError ? (
           <p>error</p>
         ) : (
-          filterBooks(data).map((book) => (
+          filterBooks(data.books).map((book) => (
             <div
               key={book.id}
               className="flex flex-col overflow-hidden transition-shadow duration-300 bg-white shadow-md rounded-2xl hover:shadow-xl"
@@ -147,9 +159,9 @@ const BookGrid = () => {
                   </h2>
                   <p className="text-sm text-gray-500">{book.author}</p>
                 </div>
-                <div className="text-gray-500">
+                <div className="text-gray-500 flex flex-col">
                   <EditBook book={book} />
-                  <Trash2 className="size-4" />
+                  <DeleteBook id={book.id} />
                 </div>
               </div>
 
@@ -165,6 +177,9 @@ const BookGrid = () => {
             </div>
           ))
         )}
+      </div>
+      <div className="flex items-center justify-center mt-6">
+        <Pagination />
       </div>
     </div>
   );

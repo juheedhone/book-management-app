@@ -4,7 +4,34 @@ import z from "zod";
 
 export const GET = async (request: NextRequest) => {
   await new Promise((resolve) => setTimeout(resolve, 1300));
-  return NextResponse.json(books);
+
+  const searchParams = request.nextUrl.searchParams;
+  const pageParam = searchParams.get("page");
+  const limitParam = searchParams.get("limit");
+  const limit = limitParam ? Number.parseInt(limitParam) : 10;
+  const page = pageParam ? Number.parseInt(pageParam) : 1;
+
+  if (Number.isNaN(page) || page < 1) {
+    return NextResponse.json(
+      { error: "Invalid page parameter" },
+      { status: 400 }
+    );
+  }
+
+  const total = books.length;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const start = (page - 1) * limit;
+  const data = books.slice(start, start + limit);
+
+  return NextResponse.json({
+    books: data,
+    config: {
+      total,
+      totalPages,
+      page,
+      limit,
+    },
+  });
 };
 
 export const POST = async (request: NextRequest) => {
