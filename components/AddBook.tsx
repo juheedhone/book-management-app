@@ -59,6 +59,7 @@ const AddBook = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       toast.success("Book added successfully");
+      form.reset();
     },
   });
 

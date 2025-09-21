@@ -19,6 +19,7 @@ import AddBook from "./AddBook";
 import DeleteBook from "./DeleteBook";
 import EditBook from "./EditBook";
 import Pagination from "./Pagination";
+import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 
 const BookGrid = () => {
@@ -77,9 +78,9 @@ const BookGrid = () => {
     <div className="min-h-screen bg-gray-50 p-16">
       <div className="flex items-center justify-between mb-8">
         <p className="text-4xl font-bold">Library</p>
-        <div className="flex">
+        <div className="flex gap-2">
           <Select value={genre} onValueChange={setGenre}>
-            <SelectTrigger className="w-[180px] mr-2">
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select genre" />
             </SelectTrigger>
             <SelectContent>
@@ -93,7 +94,7 @@ const BookGrid = () => {
             </SelectContent>
           </Select>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-[180px] mr-2">
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
@@ -111,8 +112,17 @@ const BookGrid = () => {
             value={inputValue}
             type="text"
             placeholder="Search by title or author"
-            className="w-56 mr-2"
+            className="w-56"
           />
+          <Button
+            onClick={() => {
+              setStatus("");
+              setGenre("");
+              setInputValue("");
+            }}
+          >
+            Reset Filters
+          </Button>
           <AddBook />
         </div>
       </div>
